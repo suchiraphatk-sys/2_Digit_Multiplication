@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ตั้งคูณ 2 หลัก สนุก</title>
+<link href="https://fonts.googleapis.com/css2?family=Mali:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eaf4ff;--grid:#cfe3fb;--card:#fff;--ink:#1f2a5c;--muted:#5d6b9a;--pen:#ffc83d;--pen-soft:#fff0bf;--blue:#2f80ed;--ok:#1fa968;--ok-soft:#d8f6e7;--bad:#e6425e;--bad-soft:#ffe1e6;--cell:#f1f6ff;--line:#1f2a5c;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121734;--grid:#1d2550;--card:#1c2347;--ink:#f1f4ff;--muted:#a9b4e0;--pen-soft:#4a3d12;--blue:#6aa6ff;--ok:#4fd994;--ok-soft:#14402e;--bad:#ff7088;--bad-soft:#4a1f2b;--cell:#252d58;--line:#f1f4ff}}
+:root[data-theme="dark"]{--bg:#121734;--grid:#1d2550;--card:#1c2347;--ink:#f1f4ff;--muted:#a9b4e0;--pen-soft:#4a3d12;--blue:#6aa6ff;--ok:#4fd994;--ok-soft:#14402e;--bad:#ff7088;--bad-soft:#4a1f2b;--cell:#252d58;--line:#f1f4ff}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;background-color:var(--bg);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:28px 28px;color:var(--ink);font-family:'Mali','Sarabun','Noto Sans Thai',system-ui,sans-serif;font-weight:500;line-height:1.5}
+.wrap{max-width:480px;margin:0 auto;padding:14px 12px 28px}
+h1{font-size:38px;line-height:1.15;margin:4px 0 6px}
+.hero{text-align:center}.hero .big{font-size:64px;display:inline-block;transform:rotate(-12deg)}
+.hero p{margin:0 0 14px;color:var(--muted);font-size:18px}
+button{font:inherit;cursor:pointer;color:inherit}
+button:focus-visible{outline:4px solid var(--blue);outline-offset:2px}
+.btn{font-weight:700;font-size:20px;border:3px solid var(--line);background:var(--pen);color:#1f2a5c;border-radius:16px;padding:12px 18px;box-shadow:0 4px 0 var(--line)}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+.btn.ghost{background:var(--card);color:var(--ink)}
+.btn.wide{width:100%;margin-top:12px}
+.card{background:var(--card);border:3px solid var(--line);border-radius:18px;padding:12px 16px;margin-bottom:12px}
+.card ol{margin:6px 0 0;padding-left:22px}.card b{font-size:20px}
+.best{text-align:center;font-size:20px;font-weight:700;margin:10px 0}
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px;font-weight:700;font-size:18px}
+.top .btn{font-size:16px;padding:6px 12px;box-shadow:0 3px 0 var(--line)}
+.score{font-size:24px}.score.pop{animation:pop .3s}
+.board{background:var(--card);border:3px solid var(--line);border-radius:20px;padding:14px 10px;margin-top:12px;box-shadow:0 5px 0 var(--line)}
+.prob{display:grid;grid-template-columns:34px repeat(4,1fr);gap:5px;max-width:340px;margin:0 auto;align-items:center;justify-items:center}
+.dg{font-size:40px;font-weight:700;line-height:1.2}
+.op{color:var(--blue)}
+.line{grid-column:1/-1;height:5px;width:100%;background:var(--line);border-radius:3px;margin:3px 0}
+.c{width:100%;max-width:62px;aspect-ratio:1;display:grid;place-items:center;font-size:32px;font-weight:700;border:3px solid var(--line);border-radius:12px;background:var(--cell)}
+.c.carry{max-width:42px;border-style:dashed;font-size:22px;color:var(--blue)}
+.c.na{visibility:hidden}
+.c.act{background:var(--pen-soft);border-color:var(--pen);box-shadow:0 0 0 4px var(--pen)}
+.c.ok{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);animation:pop .3s}
+.c.bad{background:var(--bad-soft);border-color:var(--bad);animation:shake .35s}
+.say{display:flex;gap:10px;align-items:center;margin:12px 0 4px;padding:10px 12px;min-height:84px;background:var(--card);border:3px solid var(--line);border-radius:18px;font-size:18px;font-weight:700}
+.say.ok{background:var(--ok-soft)}.say.bad{background:var(--bad-soft)}
+.mas{font-size:34px;flex:none}
+.pad{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:10px}
+.pad button{font-weight:700;font-size:28px;padding:11px 0;border-radius:14px;border:3px solid var(--line);background:var(--card);color:var(--ink);box-shadow:0 3px 0 var(--line)}
+.pad button:active{transform:translateY(2px);box-shadow:0 1px 0 var(--line)}
+.res{text-align:center;background:var(--card);border:3px solid var(--line);border-radius:22px;padding:22px 16px;box-shadow:0 5px 0 var(--line)}
+.res .num{font-size:60px;font-weight:700;line-height:1.1}
+.res p{font-size:19px;margin:6px 0}
+.cf{position:fixed;top:-40px;font-size:30px;pointer-events:none;animation:fall 1.4s ease-in forwards}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@keyframes pop{50%{transform:scale(1.18)}}
+@keyframes fall{to{transform:translateY(110vh) rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.cf{display:none}}
+</style>
+</head>
+<body>
+<main class="wrap">
+
+<section id="home">
+  <div class="hero">
+    <span class="big">✏️</span>
+    <h1>ตั้งคูณ 2 หลัก</h1>
+    <p>เลข 2 หลัก คูณ เลข 2 หลัก สุ่มโจทย์ไม่หมด ตอบถูกได้คะแนน</p>
+  </div>
+  <div class="card">
+    <b>วิธีเล่น</b>
+    <ol>
+      <li>คูณด้วยหลักหน่วยของตัวคูณ ได้แถวที่ 1</li>
+      <li>คูณด้วยหลักสิบของตัวคูณ ได้แถวที่ 2 (เว้นหลักหน่วยไว้ ไม่ต้องเขียนอะไร)</li>
+      <li>บวกสองแถวเข้าด้วยกัน ได้คำตอบ</li>
+    </ol>
+  </div>
+  <div class="card">
+    <b>คะแนน</b>
+    <ol>
+      <li>ตอบถูกในครั้งแรก ได้ 1 คะแนนต่อช่อง</li>
+      <li>ทำโจทย์เสร็จโดยไม่ผิดเลย ได้โบนัส 10 คะแนน</li>
+      <li>ยิ่งทำถูกมาก โจทย์ยิ่งยากขึ้น (ระดับ 1 ถึง 3)</li>
+    </ol>
+  </div>
+  <div class="best" id="best"></div>
+  <button class="btn wide" id="start">เริ่มเล่น</button>
+</section>
+
+<section id="game" hidden>
+  <div class="top"><button class="btn ghost" id="end">จบเกม</button><span id="lvl"></span><span class="score" id="score"></span></div>
+  <div class="board"><div class="prob" id="problem"></div></div>
+  <div class="say" id="say" aria-live="polite"></div>
+  <div class="pad" id="pad"></div>
+  <button class="btn wide" id="next" hidden>โจทย์ต่อไป</button>
+</section>
+
+<section id="result" hidden>
+  <div class="res">
+    <div style="font-size:64px">✏️</div>
+    <p>คะแนนของคุณ</p>
+    <div class="num" id="rscore"></div>
+    <p id="rinfo"></p>
+    <p id="rbest"></p>
+    <button class="btn wide" id="again">เล่นอีกครั้ง</button>
+  </div>
+</section>
+
+</main>
+<script>
+const $=s=>document.querySelector(s),R=n=>Math.floor(Math.random()*n),pick=a=>a[R(a.length)];
+const GOOD=['เก่งมาก!','ถูกต้อง!','สุดยอด!','เยี่ยมเลย!','ใช่เลย!'];
+const RETRY=['ลองอีกครั้งนะ','เกือบแล้ว!','ไม่เป็นไร สู้ๆ'];
+let best=0,score=0,done=0,perfect=0,q=null,steps=[],si=0,wrong=0,qMist=0,locked=false,shownLv=1;
+const used=new Set();
+try{best=+localStorage.getItem('tk2-best')||0}catch(e){best=0}
+function saveBest(){if(score>best){best=score;try{localStorage.setItem('tk2-best',best)}catch(e){}return true}return false}
+function show(id){['home','game','result'].forEach(s=>$('#'+s).hidden=s!==id);window.scrollTo(0,0)}
+const lvl=()=>1+(perfect>=2?1:0)+(perfect>=5?1:0);
+function gen(){
+  const mx=[0,3,5,9][lvl()];
+  for(let i=0;i<300;i++){
+    const ta=1+R(mx),oa=1+R(mx),tb=1+R(mx),ob=1+R(mx),k=''+ta+oa+tb+ob;
+    if(used.has(k))continue;used.add(k);return{ta,oa,tb,ob};
+  }
+  used.clear();return gen();
+}
+const cell=id=>document.querySelector('.c[data-id="'+id+'"]');
+const cl=(id,on,cls)=>'<div class="c'+(cls?' '+cls:'')+(on?'':' na')+'" data-id="'+id+'"></div>';
+const sp='<span></span>';
+function say(t,cls){$('#say').className='say '+(cls||'');$('#say').innerHTML='<span class="mas">✏️</span><span>'+t+'</span>'}
+function setScore(){const e=$('#score');e.textContent='⭐ '+score;e.classList.remove('pop');void e.offsetWidth;e.classList.add('pop')}
+function loadQ(){
+  const L=lvl();q=gen();const{ta,oa,tb,ob}=q;
+  const x1=oa*ob,c1=Math.floor(x1/10),y1=ta*ob+c1;
+  const x2=oa*tb,c2=Math.floor(x2/10),y2=ta*tb+c2;
+  const S=(10*ta+oa)*(10*tb+ob);q.S=S;q.a=10*ta+oa;q.b=10*tb+ob;
+  const p1t=y1%10,p1h=Math.floor(y1/10),p2t=x2%10,p2h=y2%10,p2th=Math.floor(y2/10);
+  const z1=p1t+p2t,k1=Math.floor(z1/10),z2=p1h+p2h+k1,k2=Math.floor(z2/10);
+  const mk=(id,ans,s,hint)=>({id,ans,say:s,hint});
+  const big=n=>n>=10?' (เขียนเฉพาะหลักหน่วย)':'';
+  steps=[mk('p1o',x1%10,'แถวที่ 1 หลักหน่วย: '+oa+' × '+ob+' = ?'+big(x1),oa+' × '+ob+' = '+x1)];
+  if(c1)steps.push(mk('c',c1,oa+' × '+ob+' = '+x1+' เขียน '+(x1%10)+' ไปแล้ว ตัวทดคือเท่าไร?',x1+' มี '+c1+' สิบ ทด '+c1));
+  steps.push(mk('p1t',p1t,'แถวที่ 1 หลักสิบ: '+ta+' × '+ob+(c1?' บวกตัวทด '+c1:'')+' = ?'+big(y1),ta+' × '+ob+' = '+(ta*ob)+(c1?' แล้ว '+(ta*ob)+' + '+c1+' = '+y1:'')));
+  if(y1>=10)steps.push(mk('p1h',p1h,y1+' เหลือตัวหน้าเท่าไร? เขียนไว้หลักร้อย',y1+' คือ '+p1h+' ร้อย'));
+  
+  steps.push(mk('p2t',p2t,'แถวที่ 2 เว้นหลักหน่วยไว้ เริ่มที่หลักสิบ: '+oa+' × '+tb+' = ?'+big(x2),oa+' × '+tb+' = '+x2));
+  if(c2)steps.push(mk('c',c2,oa+' × '+tb+' = '+x2+' เขียน '+(x2%10)+' ไปแล้ว ตัวทดใหม่คือเท่าไร?',x2+' มี '+c2+' สิบ ทด '+c2));
+  steps.push(mk('p2h',p2h,'แถวที่ 2: '+ta+' × '+tb+(c2?' บวกตัวทด '+c2:'')+' = ?'+big(y2),ta+' × '+tb+' = '+(ta*tb)+(c2?' แล้ว '+(ta*tb)+' + '+c2+' = '+y2:'')));
+  if(y2>=10)steps.push(mk('p2th',p2th,y2+' เหลือตัวหน้าเท่าไร? เขียนไว้ต่อไปทางซ้าย',y2+' คือ '+p2th));
+  steps.push(mk('so',x1%10,'หลักหน่วยของแถวที่ 2 ว่างอยู่ ลงเลขหลักหน่วยของแถวที่ 1 มาได้เลย คือเลขอะไร?','หลักหน่วยของแถวที่ 1 คือ '+(x1%10)));
+  steps.push(mk('st',z1%10,'บวกหลักสิบ: '+p1t+' + '+p2t+' = ?'+big(z1),p1t+' + '+p2t+' = '+z1));
+  const o2=[];if(y1>=10)o2.push(p1h);o2.push(p2h);if(k1)o2.push('ตัวทด '+k1);
+  steps.push(mk('sh',z2%10,'บวกหลักร้อย: '+o2.join(' + ')+' = ?'+big(z2),o2.join(' + ')+' = '+z2));
+  if(S>=1000){const o3=[];if(y2>=10)o3.push(p2th);if(k2)o3.push('ตัวทด '+k2);
+    steps.push(mk('sth',Math.floor(S/1000),'หลักพัน: '+o3.join(' + ')+' = ?',o3.join(' + ')+' = '+Math.floor(S/1000)))}
+  si=0;wrong=0;qMist=0;locked=false;
+  $('#lvl').textContent='ระดับ '+L+' | โจทย์ที่ '+(done+1);
+  $('#next').hidden=true;
+  $('#problem').innerHTML=sp+sp+sp+cl('c',c1>0||c2>0,'carry')+sp
+    +sp+sp+sp+'<span class="dg">'+ta+'</span><span class="dg">'+oa+'</span>'
+    +'<span class="dg op">×</span>'+sp+sp+'<span class="dg">'+tb+'</span><span class="dg">'+ob+'</span>'
+    +'<i class="line"></i>'
+    +sp+sp+cl('p1h',y1>=10)+cl('p1t',true)+cl('p1o',true)
+    +'<span class="dg op">+</span>'+cl('p2th',y2>=10)+cl('p2h',true)+cl('p2t',true)+sp
+    +'<i class="line"></i>'
+    +sp+cl('sth',S>=1000)+cl('sh',true)+cl('st',true)+cl('so',true);
+  const up=L>shownLv?'ขึ้นระดับ '+L+' แล้ว! ':'';shownLv=L;
+  focusStep(up);
+}
+function focusStep(prefix){
+  document.querySelectorAll('.c.act').forEach(e=>e.classList.remove('act'));
+  const s=steps[si];
+  if(s.id==='p2t'){const cc=cell('c');cc.textContent='';cc.classList.remove('ok','bad')}
+  cell(s.id).classList.add('act');say(prefix+s.say,'');
+}
+function advance(prefix){si++;wrong=0;if(si<steps.length)focusStep(prefix);else finishQ()}
+function press(d){
+  if(locked||!steps[si])return;
+  const s=steps[si],e=cell(s.id);
+  if(d===s.ans){
+    if(wrong===0){score++;setScore()}
+    e.textContent=d;e.classList.remove('act','bad');e.classList.add('ok');
+    advance(pick(GOOD)+' ');
+  }else{
+    wrong++;qMist++;e.classList.remove('bad');void e.offsetWidth;e.classList.add('bad');
+    if(wrong>=3){e.textContent=s.ans;e.classList.remove('act','bad');e.classList.add('ok');advance('คำตอบคือ '+s.ans+' ไปต่อกัน! ')}
+    else say(pick(RETRY)+' คำใบ้: '+s.hint,'bad');
+  }
+}
+function finishQ(){
+  locked=true;done++;
+  let msg='ตั้งคูณเสร็จแล้ว! '+q.a+' × '+q.b+' = '+q.S;
+  if(qMist===0){perfect++;score+=10;setScore();msg+=' ไม่ผิดเลย โบนัส +10 🎉';confetti()}
+  saveBest();say(msg,'ok');$('#next').hidden=false;
+}
+function confetti(){
+  for(let i=0;i<14;i++){const s=document.createElement('span');s.className='cf';s.textContent=pick(['🎉','⭐','✨','🎈']);
+    s.style.left=(4+R(90))+'%';s.style.animationDelay=(R(40)/100)+'s';document.body.appendChild(s);setTimeout(()=>s.remove(),1900)}
+}
+function startGame(){score=0;done=0;perfect=0;shownLv=1;used.clear();setScore();show('game');loadQ()}
+function endGame(){
+  const nb=saveBest();
+  $('#rscore').textContent=score;
+  $('#rinfo').textContent='ทำโจทย์เสร็จ '+done+' ข้อ ไม่ผิดเลย '+perfect+' ข้อ';
+  $('#rbest').textContent=nb&&score>0?'สถิติใหม่! 🎉':'คะแนนสูงสุด '+best;
+  show('result');
+}
+function renderBest(){$('#best').textContent=best>0?'คะแนนสูงสุด ⭐ '+best:''}
+$('#pad').innerHTML=[1,2,3,4,5,6,7,8,9,0].map(d=>'<button data-d="'+d+'">'+d+'</button>').join('');
+$('#pad').addEventListener('click',e=>{const b=e.target.closest('button');if(b)press(+b.dataset.d)});
+document.addEventListener('keydown',e=>{if($('#game').hidden)return;if(/^[0-9]$/.test(e.key))press(+e.key);else if(e.key==='Enter'&&!$('#next').hidden)$('#next').click()});
+$('#start').addEventListener('click',startGame);
+$('#next').addEventListener('click',loadQ);
+$('#end').addEventListener('click',endGame);
+$('#again').addEventListener('click',()=>{renderBest();startGame()});
+renderBest();
+</script>
+</body>
+</html>
