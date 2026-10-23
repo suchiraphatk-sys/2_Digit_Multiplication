@@ -24,7 +24,7 @@ button:focus-visible{outline:4px solid var(--blue);outline-offset:2px}
 .btn.wide{width:100%;margin-top:12px}
 .card{background:var(--card);border:3px solid var(--line);border-radius:18px;padding:12px 16px;margin-bottom:12px}
 .card ol{margin:6px 0 0;padding-left:22px}.card b{font-size:20px}
-.best{text-align:center;font-size:20px;font-weight:700;margin:10px 0}
+.lvbox{display:flex;gap:8px;align-items:stretch;margin-bottom:12px}.lv{display:flex;align-items:center;gap:12px;flex:1;text-align:left;padding:12px 14px;background:var(--card);border:3px solid var(--line);border-radius:18px;box-shadow:0 4px 0 var(--line)}.lv:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}.lv .em{font-size:34px}.lv .tx{flex:1;display:flex;flex-direction:column;font-size:22px;font-weight:700}.lv small{font-size:15px;font-weight:500;color:var(--muted)}.lv .cont{color:var(--ok);font-weight:700}.lv .st{font-size:15px;font-weight:700;color:var(--muted);text-align:right}.rs{font-size:15px;font-weight:700;padding:6px 10px;border:3px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);box-shadow:0 3px 0 var(--line)}.rs.sure{background:var(--bad-soft);color:var(--bad)}
 .top{display:flex;align-items:center;justify-content:space-between;gap:8px;font-weight:700;font-size:18px}
 .top .btn{font-size:16px;padding:6px 12px;box-shadow:0 3px 0 var(--line)}
 .score{font-size:24px}.score.pop{animation:pop .3s}
@@ -77,15 +77,15 @@ button:focus-visible{outline:4px solid var(--blue);outline-offset:2px}
     <ol>
       <li>ตอบถูกในครั้งแรก ได้ 1 คะแนนต่อช่อง</li>
       <li>ทำโจทย์เสร็จโดยไม่ผิดเลย ได้โบนัส 10 คะแนน</li>
-      <li>ยิ่งทำถูกมาก โจทย์ยิ่งยากขึ้น (ระดับ 1 ถึง 3)</li>
+      <li>เกมจำคะแนนและโจทย์ที่ทำค้างไว้ให้ ออกไปแล้วกลับมาเล่นต่อได้</li>
     </ol>
   </div>
-  <div class="best" id="best"></div>
-  <button class="btn wide" id="start">เริ่มเล่น</button>
+  <div id="levels"></div>
+  
 </section>
 
 <section id="game" hidden>
-  <div class="top"><button class="btn ghost" id="end">จบเกม</button><span id="lvl"></span><span class="score" id="score"></span></div>
+  <div class="top"><button class="btn ghost" id="end">← เมนู</button><span id="lvl"></span><span class="score" id="score"></span></div>
   <div class="board"><div class="prob" id="problem"></div></div>
   <div class="say" id="say" aria-live="polite"></div>
   <div class="pad" id="pad"></div>
@@ -108,14 +108,16 @@ button:focus-visible{outline:4px solid var(--blue);outline-offset:2px}
 const $=s=>document.querySelector(s),R=n=>Math.floor(Math.random()*n),pick=a=>a[R(a.length)];
 const GOOD=['เก่งมาก!','ถูกต้อง!','สุดยอด!','เยี่ยมเลย!','ใช่เลย!'];
 const RETRY=['ลองอีกครั้งนะ','เกือบแล้ว!','ไม่เป็นไร สู้ๆ'];
-let best=0,score=0,done=0,perfect=0,q=null,steps=[],si=0,wrong=0,qMist=0,locked=false,shownLv=1;
+let lv=1,score=0,done=0,perfect=0,q=null,steps=[],si=0,wrong=0,qMist=0,locked=false,store={saves:{},best:{}};
+const LV=[null,{n:'ง่าย',d:'เลข 1 ถึง 3 ไม่ต้องทดตอนคูณ',e:'🌱',mx:3},{n:'กลาง',d:'เลข 1 ถึง 5',e:'🔥',mx:5},{n:'ยาก',d:'เลข 1 ถึง 9',e:'🏆',mx:9}];
 const used=new Set();
-try{best=+localStorage.getItem('tk2-best')||0}catch(e){best=0}
-function saveBest(){if(score>best){best=score;try{localStorage.setItem('tk2-best',best)}catch(e){}return true}return false}
+try{const r=JSON.parse(localStorage.getItem('tk2')||'null');if(r&&r.saves&&r.best)store=r}catch(e){}
+function persist(){try{localStorage.setItem('tk2',JSON.stringify(store))}catch(e){}}
+function save(){store.saves[lv]={score,done,perfect,q:{ta:q.ta,oa:q.oa,tb:q.tb,ob:q.ob},si,qMist};if(score>(store.best[lv]||0))store.best[lv]=score;persist()}
 function show(id){['home','game','result'].forEach(s=>$('#'+s).hidden=s!==id);window.scrollTo(0,0)}
-const lvl=()=>1+(perfect>=2?1:0)+(perfect>=5?1:0);
+
 function gen(){
-  const mx=[0,3,5,9][lvl()];
+  const mx=LV[lv].mx;
   for(let i=0;i<300;i++){
     const ta=1+R(mx),oa=1+R(mx),tb=1+R(mx),ob=1+R(mx),k=''+ta+oa+tb+ob;
     if(used.has(k))continue;used.add(k);return{ta,oa,tb,ob};
@@ -127,8 +129,8 @@ const cl=(id,on,cls)=>'<div class="c'+(cls?' '+cls:'')+(on?'':' na')+'" data-id=
 const sp='<span></span>';
 function say(t,cls){$('#say').className='say '+(cls||'');$('#say').innerHTML='<span class="mas">✏️</span><span>'+t+'</span>'}
 function setScore(){const e=$('#score');e.textContent='⭐ '+score;e.classList.remove('pop');void e.offsetWidth;e.classList.add('pop')}
-function loadQ(){
-  const L=lvl();q=gen();const{ta,oa,tb,ob}=q;
+function loadQ(g,rs,rm){
+  q=g||gen();used.add(''+q.ta+q.oa+q.tb+q.ob);const{ta,oa,tb,ob}=q;
   const x1=oa*ob,c1=Math.floor(x1/10),y1=ta*ob+c1;
   const x2=oa*tb,c2=Math.floor(x2/10),y2=ta*tb+c2;
   const S=(10*ta+oa)*(10*tb+ob);q.S=S;q.a=10*ta+oa;q.b=10*tb+ob;
@@ -151,8 +153,8 @@ function loadQ(){
   steps.push(mk('sh',z2%10,'บวกหลักร้อย: '+o2.join(' + ')+' = ?'+big(z2),o2.join(' + ')+' = '+z2));
   if(S>=1000){const o3=[];if(y2>=10)o3.push(p2th);if(k2)o3.push('ตัวทด '+k2);
     steps.push(mk('sth',Math.floor(S/1000),'หลักพัน: '+o3.join(' + ')+' = ?',o3.join(' + ')+' = '+Math.floor(S/1000)))}
-  si=0;wrong=0;qMist=0;locked=false;
-  $('#lvl').textContent='ระดับ '+L+' | โจทย์ที่ '+(done+1);
+  si=rs||0;wrong=0;qMist=rm||0;locked=false;const fin=si>=steps.length;
+  $('#lvl').textContent=LV[lv].n+' | โจทย์ที่ '+(fin?done:done+1);
   $('#next').hidden=true;
   $('#problem').innerHTML=sp+sp+sp+cl('c',c1>0||c2>0,'carry')+sp
     +sp+sp+sp+'<span class="dg">'+ta+'</span><span class="dg">'+oa+'</span>'
@@ -162,8 +164,8 @@ function loadQ(){
     +'<span class="dg op">+</span>'+cl('p2th',y2>=10)+cl('p2h',true)+cl('p2t',true)+sp
     +'<i class="line"></i>'
     +sp+cl('sth',S>=1000)+cl('sh',true)+cl('st',true)+cl('so',true);
-  const up=L>shownLv?'ขึ้นระดับ '+L+' แล้ว! ':'';shownLv=L;
-  focusStep(up);
+  fillDone(Math.min(si,steps.length));
+  if(fin)showDone();else focusStep(rs?'เล่นต่อจากเดิม: ':'');save();
 }
 function focusStep(prefix){
   document.querySelectorAll('.c.act').forEach(e=>e.classList.remove('act'));
@@ -171,7 +173,12 @@ function focusStep(prefix){
   if(s.id==='p2t'){const cc=cell('c');cc.textContent='';cc.classList.remove('ok','bad')}
   cell(s.id).classList.add('act');say(prefix+s.say,'');
 }
-function advance(prefix){si++;wrong=0;if(si<steps.length)focusStep(prefix);else finishQ()}
+function fillDone(n){
+  for(let i=0;i<n;i++){const s=steps[i];if(s.id==='p2t'){const cc=cell('c');cc.textContent='';cc.classList.remove('ok','bad')}
+    const e=cell(s.id);e.textContent=s.ans;e.classList.add('ok')}
+}
+function showDone(){locked=true;say('ตั้งคูณเสร็จแล้ว! '+q.a+' × '+q.b+' = '+q.S+(qMist===0?' ไม่ผิดเลย โบนัส +10 🎉':''),'ok');$('#next').hidden=false}
+function advance(prefix){si++;wrong=0;if(si<steps.length)focusStep(prefix);else finishQ();save()}
 function press(d){
   if(locked||!steps[si])return;
   const s=steps[si],e=cell(s.id);
@@ -182,20 +189,24 @@ function press(d){
   }else{
     wrong++;qMist++;e.classList.remove('bad');void e.offsetWidth;e.classList.add('bad');
     if(wrong>=3){e.textContent=s.ans;e.classList.remove('act','bad');e.classList.add('ok');advance('คำตอบคือ '+s.ans+' ไปต่อกัน! ')}
-    else say(pick(RETRY)+' คำใบ้: '+s.hint,'bad');
+    else{say(pick(RETRY)+' คำใบ้: '+s.hint,'bad');save()}
   }
 }
 function finishQ(){
   locked=true;done++;
-  let msg='ตั้งคูณเสร็จแล้ว! '+q.a+' × '+q.b+' = '+q.S;
-  if(qMist===0){perfect++;score+=10;setScore();msg+=' ไม่ผิดเลย โบนัส +10 🎉';confetti()}
-  saveBest();say(msg,'ok');$('#next').hidden=false;
+  
+  if(qMist===0){perfect++;score+=10;setScore();confetti()}
+  showDone();
 }
 function confetti(){
   for(let i=0;i<14;i++){const s=document.createElement('span');s.className='cf';s.textContent=pick(['🎉','⭐','✨','🎈']);
     s.style.left=(4+R(90))+'%';s.style.animationDelay=(R(40)/100)+'s';document.body.appendChild(s);setTimeout(()=>s.remove(),1900)}
 }
-function startGame(){score=0;done=0;perfect=0;shownLv=1;used.clear();setScore();show('game');loadQ()}
+function play(l){
+  lv=l;used.clear();const s=store.saves[l];
+  if(s){score=s.score;done=s.done;perfect=s.perfect}else{score=0;done=0;perfect=0}
+  show('game');setScore();if(s)loadQ(s.q,s.si,s.qMist);else loadQ();
+}
 function endGame(){
   const nb=saveBest();
   $('#rscore').textContent=score;
@@ -203,15 +214,22 @@ function endGame(){
   $('#rbest').textContent=nb&&score>0?'สถิติใหม่! 🎉':'คะแนนสูงสุด '+best;
   show('result');
 }
-function renderBest(){$('#best').textContent=best>0?'คะแนนสูงสุด ⭐ '+best:''}
+function renderHome(){
+  $('#levels').innerHTML=[1,2,3].map(i=>{const s=store.saves[i],b=store.best[i]||0;
+    return '<div class="lvbox"><button class="lv" data-play="'+i+'"><span class="em">'+LV[i].e+'</span><span class="tx"><b>'+LV[i].n+'</b><small>'+LV[i].d+'</small>'+(s?'<small class="cont">เล่นต่อ: โจทย์ที่ '+(s.done+1)+' | ⭐ '+s.score+'</small>':'')+'</span><span class="st">'+(b?'สูงสุด<br>⭐ '+b:'')+'</span></button>'+(s?'<button class="rs" data-reset="'+i+'">เริ่มใหม่</button>':'')+'</div>'}).join('');
+}
 $('#pad').innerHTML=[1,2,3,4,5,6,7,8,9,0].map(d=>'<button data-d="'+d+'">'+d+'</button>').join('');
 $('#pad').addEventListener('click',e=>{const b=e.target.closest('button');if(b)press(+b.dataset.d)});
 document.addEventListener('keydown',e=>{if($('#game').hidden)return;if(/^[0-9]$/.test(e.key))press(+e.key);else if(e.key==='Enter'&&!$('#next').hidden)$('#next').click()});
-$('#start').addEventListener('click',startGame);
-$('#next').addEventListener('click',loadQ);
-$('#end').addEventListener('click',endGame);
-$('#again').addEventListener('click',()=>{renderBest();startGame()});
-renderBest();
+$('#levels').addEventListener('click',e=>{
+  const r=e.target.closest('[data-reset]');
+  if(r){const i=+r.dataset.reset;if(r.classList.contains('sure')){delete store.saves[i];persist();renderHome()}else{r.classList.add('sure');r.textContent='แตะอีกครั้ง';setTimeout(()=>{r.classList.remove('sure');r.textContent='เริ่มใหม่'},3000)}return}
+  const p=e.target.closest('[data-play]');if(p)play(+p.dataset.play);
+});
+$('#next').addEventListener('click',()=>loadQ());
+$('#end').addEventListener('click',()=>{renderHome();show('home')});
+
+renderHome();
 </script>
 </body>
 </html>
